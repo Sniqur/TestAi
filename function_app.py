@@ -19,6 +19,8 @@ SHARE_NAME = os.getenv("SHARE_NAME")
 FORM_RECOGNIZER_ENDPOINT = os.getenv("FORM_RECOGNIZER_ENDPOINT")
 FORM_RECOGNIZER_KEY = os.getenv("FORM_RECOGNIZER_KEY")
 DISCORD_WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL")
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
 # Initialize Clients
 blob_service_client = BlobServiceClient.from_connection_string(STORAGE_CONNECTION_STRING)
@@ -44,7 +46,29 @@ def send_discord_notification(file_name):
     except Exception as e:
         logging.error(f"Error sending Discord notification: {e}")
 
+def send_telegram_notification(file_name):
+    """
+    Sends a notification to a Telegram chat when a JSON file is added to Blob Storage.
+    """
+    try:
+        if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
+            logging.error("Telegram bot token or chat ID is not set.")
+            return
 
+        message = f"🎉 A new JSON file has been added to Blob Storage: `{file_name}`"
+        url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
+        payload = {
+            "chat_id": TELEGRAM_CHAT_ID,
+            "text": message
+        }
+        response = requests.post(url, json=payload)
+
+        if response.status_code == 200:
+            logging.info(f"Successfully sent Telegram notification for {file_name}.")
+        else:
+            logging.error(f"Failed to send Telegram notification. Status code: {response.status_code}, Response: {response.text}")
+    except Exception as e:
+        logging.error(f"Error sending Telegram notification: {e}")
 
 def process_pdf_to_json(pdf_content):
     poller = document_analysis_client.begin_analyze_document("prebuilt-document", pdf_content)
@@ -58,8 +82,6 @@ def process_pdf_to_json(pdf_content):
         })
 
     return json.dumps(extracted_data)
-
-
 
 @app.schedule(schedule="*/1 * * * *", arg_name="timer")
 def process_files_timer_trigger(timer: func.TimerRequest) -> None:
@@ -87,7 +109,7 @@ def process_files_timer_trigger(timer: func.TimerRequest) -> None:
                 # Process PDF with Azure Form Recognizer
                 json_result = process_pdf_to_json(pdf_content)
 
-                # Upload JSON to Azure Blob Storage
+                # Upload JSON to Blob Storage
                 blob_client = blob_service_client.get_blob_client(
                     container=BLOB_CONTAINER_NAME, blob=f"{os.path.splitext(file_name)[0]}.json"
                 )
@@ -95,9 +117,10 @@ def process_files_timer_trigger(timer: func.TimerRequest) -> None:
 
                 logging.info(f"Successfully processed {file_name} and uploaded JSON result.")
 
-
-                send_discord_notification(f"{os.path.splitext(file_name)[0]}.json")
-
+                # Send notifications
+                json_file_name = f"{os.path.splitext(file_name)[0]}.json"
+                send_discord_notification(json_file_name)
+                send_telegram_notification(json_file_name)
 
     except Exception as e:
         logging.error(f"Error processing files: {e}")
