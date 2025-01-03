@@ -10,7 +10,6 @@ from azure.core.credentials import AzureKeyCredential
 from azure.functions import FunctionApp
 import requests
 
-# if we can see this we can bypass compress stage 
 app = FunctionApp()
 
 # Environment Variables
