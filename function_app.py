@@ -1,15 +1,14 @@
 import os
 import logging
 import azure.functions as func
+import json
 from azure.storage.blob import BlobServiceClient
 from azure.storage.fileshare import ShareFileClient
 from azure.storage.fileshare import ShareDirectoryClient
 from azure.ai.formrecognizer import DocumentAnalysisClient
 from azure.core.credentials import AzureKeyCredential
-import json
 from azure.functions import FunctionApp
-
-# if we can see this we can bypass compress stage 
+ 
 app = FunctionApp()
 
 # Environment Variables
