@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Local .terraform directories
 **/.terraform/*
 
@@ -36,7 +35,7 @@ override.tf.json
 # Ignore CLI configuration files
 .terraformrc
 terraform.rc
-=======
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -172,4 +171,4 @@ __blobstorage__
 __queuestorage__
 __azurite_db*__.json
 .python_packages
->>>>>>> e40d83a92d98f30a4f4d8729758e675bcadc0be1
+
