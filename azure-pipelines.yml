@@ -86,21 +86,27 @@ stages:
             displayName: "Manual Approval Step"
 
   - stage: DeployToProd
-    displayName: "Deploy to Production"
-    dependsOn: Approval
+    displayName: "Deploy Stage"
+    dependsOn: Build
     jobs:
-      - deployment: Deploy
-        environment: Prod
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - download: current
-                  artifact: drop
+      - job: DeployFunctionApp
+        displayName: "Deploy Azure Function App"
+        pool:
+          vmImage: "ubuntu-latest"
+        steps:
+          - task: AzureCLI@2
+            inputs:
+              azureSubscription: "$(azureServiceConnection)"
+              scriptType: bash
+              scriptLocation: inlineScript
+              inlineScript: |
+                echo "Stopping Function in Dev env"
+                az functionapp stop --name $(devFunctionAppName) 
+                
+                echo "Installing Azure Functions Core Tools..."
+                npm install -g azure-functions-core-tools@4 --unsafe-perm true
 
-                - task: AzureFunctionApp@1
-                  inputs:
-                    azureSubscription: "$(azureServiceConnection)"
-                    appType: functionAppLinux
-                    appName: "$(prodFunctionAppName)"
-                    package: "$(packagePath)"
+                echo "Deploying Azure Function App..."
+
+                func azure functionapp publish $(prodFunctionAppName) --python
+            displayName: "Deploy Function App to Prod"
