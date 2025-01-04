@@ -12,8 +12,10 @@ variables:
   resourceGroup: "FinalTask-PDF-RG"
 
 stages:
+
   - stage: Build
     displayName: "Build and Package Application"
+
     jobs:
       - job: Build
         steps:
@@ -38,6 +40,7 @@ stages:
   - stage: DeployToDev
     displayName: "Deploy to Development"
     dependsOn: Build
+
     jobs:
       - job: DeployFunctionApp
         displayName: "Deploy Azure Function App-DEV"
@@ -50,41 +53,54 @@ stages:
               scriptType: bash
               scriptLocation: inlineScript
               inlineScript: |
-                echo "Starting the Dev Function App..."
-             
-                # az functionapp start --name $(devFunctionAppName) --resource-group $(resourceGroup)
+                echo "Starting the Dev Function App "
+               
+                # az functionapp start --name $(devFunctionAppName)  --resource-group $(resourceGroup)
                 
                 # echo "Installing Azure Functions Core Tools..."
                 # npm install -g azure-functions-core-tools@4 --unsafe-perm true
 
-                # echo "Deploying Azure Function App to Dev..."
+                # echo "Deploying Azure Function App..."
+
                 # func azure functionapp publish $(devFunctionAppName) --python
             displayName: "Deploy Function App to Dev"
 
-  - stage: DeployToProd
-    displayName: "Deploy to Production"
+
+
+  - stage: Approval
+    displayName: "Manual Approval for Production"
     dependsOn: DeployToDev
     jobs:
-      - job: DeployFunctionApp
-        displayName: "Deploy Azure Function App-PROD"
-        pool:
-          vmImage: "ubuntu-latest"
+      - job: Approval
         steps:
-          - task: AzureCLI@2
-            inputs:
-              azureSubscription: "$(azureServiceConnection)"
-              scriptType: bash
-              scriptLocation: inlineScript
-              inlineScript: |
-                echo "Stopping the Dev Function App..."
-                az functionapp stop --name $(devFunctionAppName) --resource-group $(resourceGroup)
+          - script: echo "Waiting for manual approval"
+            displayName: "Manual Approval Step"
 
-                echo "Starting the Prod Function App..."
-                az functionapp start --name $(prodFunctionAppName) --resource-group $(resourceGroup)
+  - stage: DeployToProd
+    displayName: "Deploy to Production"
+    dependsOn: Approval
+    jobs:
+      - deployment: Deploy
+        environment: Prod
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+              - task: AzureCLI@2
+                inputs:
+                  azureSubscription: "$(azureServiceConnection)"
+                  scriptType: bash
+                  scriptLocation: inlineScript
+                  inlineScript: |
+                    echo "Stopping the Dev Function App..."
+                    az functionapp stop --name $(devFunctionAppName) --resource-group $(resourceGroup)
 
-                echo "Installing Azure Functions Core Tools..."
-                npm install -g azure-functions-core-tools@4 --unsafe-perm true
+                    echo "Starting the Prod Function App..."
+                    az functionapp start --name $(prodFunctionAppName) --resource-group $(resourceGroup)
 
-                echo "Deploying Azure Function App to Prod..."
-                func azure functionapp publish $(prodFunctionAppName) --python
-            displayName: "Deploy Function App to Prod"
+                    echo "Installing Azure Functions Core Tools..."
+                    npm install -g azure-functions-core-tools@4 --unsafe-perm true
+
+                    echo "Deploying Azure Function App to Prod..."
+                    func azure functionapp publish $(prodFunctionAppName) --python
+                displayName: "Deploy Function App to Prod"
