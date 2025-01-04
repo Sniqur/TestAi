@@ -12,32 +12,31 @@ variables:
   resourceGroup: "FinalTask-PDF-RG"
 
 stages:
-  - stage: Build
-    displayName: "Build and Package Application"
-    jobs:
-      - job: Build
-        steps:
-          - task: UsePythonVersion@0
-            inputs:
-              versionSpec: "3.x"
-              addToPath: true
+  # - stage: Build
+  #   displayName: "Build and Package Application"
+  #   jobs:
+  #     - job: Build
+  #       steps:
+  #         - task: UsePythonVersion@0
+  #           inputs:
+  #             versionSpec: "3.x"
+  #             addToPath: true
 
-          - script: |
-              python -m venv env
-              source env/bin/activate
-              pip install -r requirements.txt
-            displayName: "Install Dependencies"
+  #         - script: |
+  #             python -m venv env
+  #             source env/bin/activate
+  #             pip install -r requirements.txt
+  #           displayName: "Install Dependencies"
 
-          - script: |
-              zip -r $(Build.ArtifactStagingDirectory)/functionapp.zip .
-            displayName: "Package Application"
+  #         - script: |
+  #             zip -r $(Build.ArtifactStagingDirectory)/functionapp.zip .
+  #           displayName: "Package Application"
 
-          - publish: $(Build.ArtifactStagingDirectory)/functionapp.zip
-            artifact: drop
+  #         - publish: $(Build.ArtifactStagingDirectory)/functionapp.zip
+  #           artifact: drop
 
   - stage: DeployToDev
     displayName: "Deploy Stage"
-    dependsOn: Build
     jobs:
       - job: DeployFunctionApp
         displayName: "Deploy Azure Function App-DEV"
