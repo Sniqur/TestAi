@@ -35,24 +35,45 @@ stages:
             artifact: drop
 
   - stage: DeployToDev
-    displayName: "Deploy to Development"
+    displayName: "Deploy Stage"
     dependsOn: Build
     jobs:
-      - deployment: Deploy
-        environment: Dev
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - download: current
-                  artifact: drop
+      - job: DeployFunctionApp
+        displayName: "Deploy Azure Function App"
+        pool:
+          vmImage: "ubuntu-latest"
+        steps:
+          - task: AzureCLI@2
+            inputs:
+              azureSubscription: "$(azureServiceConnection)"
+              scriptType: bash
+              scriptLocation: inlineScript
+              inlineScript: |
+                echo "Installing Azure Functions Core Tools..."
+                npm install -g azure-functions-core-tools@4 --unsafe-perm true
 
-                - task: AzureFunctionApp@1
-                  inputs:
-                    azureSubscription: "$(azureServiceConnection)"
-                    appType: functionAppLinux
-                    appName: "$(devFunctionAppName)"
-                    package: "$(packagePath)"
+                echo "Deploying Azure Function App..."
+                func azure functionapp publish $(functionAppName)
+            displayName: "Deploy Function App to Dev"
+  # - stage: DeployToDev
+  #   displayName: "Deploy to Development"
+  #   dependsOn: Build
+  #   jobs:
+  #     - deployment: Deploy
+  #       environment: Dev
+  #       strategy:
+  #         runOnce:
+  #           deploy:
+  #             steps:
+  #               - download: current
+  #                 artifact: drop
+
+  #               - task: AzureFunctionApp@1
+  #                 inputs:
+  #                   azureSubscription: "$(azureServiceConnection)"
+  #                   appType: functionAppLinux
+  #                   appName: "$(devFunctionAppName)"
+  #                   package: "$(packagePath)"
 
   - stage: Approval
     displayName: "Manual Approval for Production"
