@@ -49,6 +49,9 @@ stages:
               scriptType: bash
               scriptLocation: inlineScript
               inlineScript: |
+                echo "Starting the Dev Function App "
+                az functionapp start --name $(devFunctionAppName) 
+                
                 echo "Installing Azure Functions Core Tools..."
                 npm install -g azure-functions-core-tools@4 --unsafe-perm true
 
@@ -113,6 +116,9 @@ stages:
                 
                 echo "Stopping the Dev Function App "
                 az functionapp stop --name $(devFunctionAppName) 
+               
+                echo "Starting the Prod Function App "
+                az functionapp start --name $(prodFunctionAppName) 
 
 
                 echo "Installing Azure Functions Core Tools..."
