@@ -39,7 +39,7 @@ stages:
     dependsOn: Build
     jobs:
       - job: DeployFunctionApp
-        displayName: "Deploy Azure Function App"
+        displayName: "Deploy Azure Function App-DEV"
         pool:
           vmImage: "ubuntu-latest"
         steps:
@@ -56,25 +56,7 @@ stages:
 
                 func azure functionapp publish $(devFunctionAppName) --python
             displayName: "Deploy Function App to Dev"
-  # - stage: DeployToDev
-  #   displayName: "Deploy to Development"
-  #   dependsOn: Build
-  #   jobs:
-  #     - deployment: Deploy
-  #       environment: Dev
-  #       strategy:
-  #         runOnce:
-  #           deploy:
-  #             steps:
-  #               - download: current
-  #                 artifact: drop
 
-  #               - task: AzureFunctionApp@1
-  #                 inputs:
-  #                   azureSubscription: "$(azureServiceConnection)"
-  #                   appType: functionAppLinux
-  #                   appName: "$(devFunctionAppName)"
-  #                   package: "$(packagePath)"
 
   - stage: Approval
     displayName: "Manual Approval for Production"
@@ -85,12 +67,40 @@ stages:
           - script: echo "Waiting for manual approval"
             displayName: "Manual Approval Step"
 
+  # - stage: DeployToProd
+  #   displayName: "Deploy to Production"
+  #   dependsOn: Approval
+  #   jobs:
+  #     - deployment: Deploy
+  #       environment: Prod
+  #       strategy:
+  #         runOnce:
+  #           deploy:
+  #             steps:
+  #               - download: current
+  #                 artifact: drop
+  #               - task: AzureCLI@2
+  #                 inputs:
+  #                   azureSubscription: "$(azureServiceConnection)"
+  #                   scriptType: bash
+  #                   scriptLocation: inlineScript
+  #                   inlineScript: |
+  #                     echo "Installing Azure Functions Core Tools..."
+  #                     npm install -g azure-functions-core-tools@4 --unsafe-perm true
+
+  #                     echo "Deploying Azure Function App..."
+
+  #                     func azure functionapp publish $(devFunctionAppName) --python
+  #                 displayName: "Deploy Function App to Dev"
+
+
+
   - stage: DeployToProd
     displayName: "Deploy Stage"
-    dependsOn: Build
+    dependsOn: Approval
     jobs:
       - job: DeployFunctionApp
-        displayName: "Deploy Azure Function App"
+        displayName: "Deploy Azure Function App-PROD"
         pool:
           vmImage: "ubuntu-latest"
         steps:
@@ -100,9 +110,11 @@ stages:
               scriptType: bash
               scriptLocation: inlineScript
               inlineScript: |
-                echo "Stopping Function in Dev env"
-                az functionapp stop --name $(devFunctionAppName) 
                 
+                echo "Stopping the Dev Function App "
+                az functionapp stop --name $(devFunctionAppName) 
+
+
                 echo "Installing Azure Functions Core Tools..."
                 npm install -g azure-functions-core-tools@4 --unsafe-perm true
 
