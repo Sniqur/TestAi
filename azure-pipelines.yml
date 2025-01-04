@@ -56,7 +56,7 @@ stages:
     dependsOn: Approval
     jobs:
       - deployment: Deploy
-        environment: Prod
+        environment: "Prod"
         strategy:
           runOnce:
             deploy:
@@ -75,7 +75,7 @@ stages:
                     npm install -g azure-functions-core-tools@4 --unsafe-perm true
 
                     echo "Deploying Azure Function App to Prod..."
-                    func azure functionapp publish $(prodFunctionAppName) --python --source $(Pipeline.Workspace)/drop
+                    func azure functionapp publish $(prodFunctionAppName) --python --source $(Pipeline.Workspace)/drop/
                 displayName: "Deploy Function App to Prod"
 
 
