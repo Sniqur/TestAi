@@ -69,7 +69,8 @@ stages:
                   inlineScript: |
 
 
-
+                    echo "Changing directory to project root..."
+                    cd $(Pipeline.Workspace)/drop
 
                     echo "Installing Azure Functions Core Tools..."
                     npm install -g azure-functions-core-tools@4 --unsafe-perm true
