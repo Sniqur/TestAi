@@ -27,12 +27,13 @@ stages:
               scriptType: bash
               scriptLocation: inlineScript
               inlineScript: |
-                echo "Starting the Dev Function App "
+              
+                # echo "Starting the Dev Function App "
                
                 # az functionapp start --name $(devFunctionAppName)  --resource-group $(resourceGroup)
                 
-                # echo "Installing Azure Functions Core Tools..."
-                # npm install -g azure-functions-core-tools@4 --unsafe-perm true
+                echo "Installing Azure Functions Core Tools..."
+                npm install -g azure-functions-core-tools@4 --unsafe-perm true
 
                 # echo "Deploying Azure Function App..."
 
@@ -66,16 +67,20 @@ stages:
                   scriptType: bash
                   scriptLocation: inlineScript
                   inlineScript: |
-                  
+
+
+
+
+                    echo "Installing Azure Functions Core Tools..."
+                    npm install -g azure-functions-core-tools@4 --unsafe-perm true
+
+                    echo "Deploying Azure Function App to Prod..."
+                    func azure functionapp publish $(prodFunctionAppName) --python
+                displayName: "Deploy Function App to Prod"
+
+
                     # echo "Stopping the Dev Function App..."
                     # az functionapp stop --name $(devFunctionAppName) --resource-group $(resourceGroup)
 
                     # echo "Starting the Prod Function App..."
                     # az functionapp start --name $(prodFunctionAppName) --resource-group $(resourceGroup)
-
-                    # echo "Installing Azure Functions Core Tools..."
-                    # npm install -g azure-functions-core-tools@4 --unsafe-perm true
-
-                    echo "Deploying Azure Function App to Prod..."
-                    func azure functionapp publish $(prodFunctionAppName) --python
-                displayName: "Deploy Function App to Prod"
