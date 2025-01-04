@@ -37,7 +37,7 @@ stages:
 
                 # echo "Deploying Azure Function App..."
                 pwd
-                # func azure functionapp publish $(devFunctionAppName) --python
+                func azure functionapp publish $(devFunctionAppName) --python
             displayName: "Deploy Function App to Dev"
 
 
