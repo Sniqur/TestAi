@@ -1,0 +1,84 @@
+trigger:
+  branches:
+    include:
+      - main
+      - dev
+
+variables:
+  azureServiceConnection: "Azure subscription 1 (307f3351-f3f3-42f2-aa13-405cd075f673)"
+  devFunctionAppName: "pdfFuncApp-Dev"
+  prodFunctionAppName: "pdfFuncApp"
+  packagePath: "$(System.DefaultWorkingDirectory)/drop"
+
+stages:
+  - stage: Build
+    displayName: "Build and Package Application"
+    jobs:
+      - job: Build
+        steps:
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: "3.x"
+              addToPath: true
+
+          - script: |
+              python -m venv env
+              source env/bin/activate
+              pip install -r requirements.txt
+            displayName: "Install Dependencies"
+
+          - script: |
+              zip -r $(Build.ArtifactStagingDirectory)/functionapp.zip .
+            displayName: "Package Application"
+
+          - publish: $(Build.ArtifactStagingDirectory)/functionapp.zip
+            artifact: drop
+
+  - stage: DeployToDev
+    displayName: "Deploy to Development"
+    dependsOn: Build
+    jobs:
+      - deployment: Deploy
+        environment: Dev
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - download: current
+                  artifact: drop
+
+                - task: AzureFunctionApp@1
+                  inputs:
+                    azureSubscription: "$(azureServiceConnection)"
+                    appType: functionAppLinux
+                    appName: "$(devFunctionAppName)"
+                    package: "$(packagePath)/functionapp.zip"
+
+  - stage: Approval
+    displayName: "Manual Approval for Production"
+    dependsOn: DeployToDev
+    jobs:
+      - job: Approval
+        steps:
+          - script: echo "Waiting for manual approval"
+            displayName: "Manual Approval Step"
+
+  - stage: DeployToProd
+    displayName: "Deploy to Production"
+    dependsOn: Approval
+    jobs:
+      - deployment: Deploy
+        environment: Prod
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - download: current
+                  artifact: drop
+
+                - task: AzureFunctionApp@1
+                  inputs:
+                    azureSubscription: "$(azureServiceConnection)"
+                    appType: functionAppLinux
+                    appName: "$(prodFunctionAppName)"
+                    package: "$(packagePath)/functionapp.zip"
