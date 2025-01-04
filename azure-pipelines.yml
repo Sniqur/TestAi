@@ -52,7 +52,7 @@ stages:
                     azureSubscription: "$(azureServiceConnection)"
                     appType: functionAppLinux
                     appName: "$(devFunctionAppName)"
-                    package: "$(packagePath)/functionapp.zip"
+                    package: "$(packagePath)"
 
   - stage: Approval
     displayName: "Manual Approval for Production"
