@@ -66,37 +66,14 @@ stages:
     displayName: "Manual Approval for Production"
     dependsOn: DeployToDev
     jobs:
-      - job: Approval
+      - job: ManualApproval
+        displayName: "Approval Step"
         steps:
-          - script: echo "Waiting for manual approval"
-            displayName: "Manual Approval Step"
-
-  # - stage: DeployToProd
-  #   displayName: "Deploy to Production"
-  #   dependsOn: Approval
-  #   jobs:
-  #     - deployment: Deploy
-  #       environment: Prod
-  #       strategy:
-  #         runOnce:
-  #           deploy:
-  #             steps:
-  #               - download: current
-  #                 artifact: drop
-  #               - task: AzureCLI@2
-  #                 inputs:
-  #                   azureSubscription: "$(azureServiceConnection)"
-  #                   scriptType: bash
-  #                   scriptLocation: inlineScript
-  #                   inlineScript: |
-  #                     echo "Installing Azure Functions Core Tools..."
-  #                     npm install -g azure-functions-core-tools@4 --unsafe-perm true
-
-  #                     echo "Deploying Azure Function App..."
-
-  #                     func azure functionapp publish $(devFunctionAppName) --python
-  #                 displayName: "Deploy Function App to Dev"
-
+          - script: |
+              echo "Waiting for manual approval..."
+              echo "Please approve or reject this deployment."
+              sleep 600  # Simulates waiting for manual approval
+            displayName: "Await Manual Approval"
 
 
   - stage: DeployToProd
