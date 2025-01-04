@@ -8,7 +8,7 @@ variables:
   azureServiceConnection: "Azure subscription 1 (307f3351-f3f3-42f2-aa13-405cd075f673)"
   devFunctionAppName: "pdfFuncApp-Dev"
   prodFunctionAppName: "pdfFuncApp"
-  packagePath: "$(System.DefaultWorkingDirectory)/drop"
+  packagePath: "$(Pipeline.Workspace)/drop/functionapp.zip"
 
 stages:
   - stage: Build
@@ -52,7 +52,7 @@ stages:
                     azureSubscription: "$(azureServiceConnection)"
                     appType: functionAppLinux
                     appName: "$(devFunctionAppName)"
-                    package: $(Build.ArtifactStagingDirectory)
+                    package: "$(packagePath)"
 
   - stage: Approval
     displayName: "Manual Approval for Production"
@@ -81,4 +81,4 @@ stages:
                     azureSubscription: "$(azureServiceConnection)"
                     appType: functionAppLinux
                     appName: "$(prodFunctionAppName)"
-                    package: "$(packagePath)/functionapp.zip"
+                    package: "$(packagePath)"
