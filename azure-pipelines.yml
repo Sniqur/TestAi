@@ -53,7 +53,7 @@ stages:
                 npm install -g azure-functions-core-tools@4 --unsafe-perm true
 
                 echo "Deploying Azure Function App..."
-                func azure functionapp publish $(functionAppName)
+                func azure functionapp publish $(devFunctionAppName)
             displayName: "Deploy Function App to Dev"
   # - stage: DeployToDev
   #   displayName: "Deploy to Development"
