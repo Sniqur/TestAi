@@ -8,7 +8,7 @@ variables:
   azureServiceConnection: "Azure subscription 1 (307f3351-f3f3-42f2-aa13-405cd075f673)"
   devFunctionAppName: "pdfFuncApp-Dev"
   prodFunctionAppName: "pdfFuncApp"
-  packagePath: "$(Pipeline.Workspace)/drop/functionapp.zip"
+  packagePath: "$(Pipeline.Workspace)/drop"
   resourceGroup: "FinalTask-PDF-RG"
 
 stages:
@@ -70,13 +70,13 @@ stages:
 
                     pwd
                     echo "Changing directory to project root..."
-                    cd $(Pipeline.Workspace)/drop
-
+                    cd $(packagePath)
+                    pwd
                     echo "Installing Azure Functions Core Tools..."
                     npm install -g azure-functions-core-tools@4 --unsafe-perm true
 
                     echo "Deploying Azure Function App to Prod..."
-                    func azure functionapp publish $(prodFunctionAppName) --python --source $(Pipeline.Workspace)/drop/
+                    func azure functionapp publish $(prodFunctionAppName) --python --source $(packagePath)
                 displayName: "Deploy Function App to Prod"
 
 
