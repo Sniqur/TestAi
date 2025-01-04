@@ -22,12 +22,14 @@ DISCORD_WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL")
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
+
 # Initialize Clients
 blob_service_client = BlobServiceClient.from_connection_string(STORAGE_CONNECTION_STRING)
 document_analysis_client = DocumentAnalysisClient(
     endpoint=FORM_RECOGNIZER_ENDPOINT,
     credential=AzureKeyCredential(FORM_RECOGNIZER_KEY),
 )
+
 
 def send_discord_notification(file_name):
     """
@@ -45,6 +47,8 @@ def send_discord_notification(file_name):
             logging.error(f"Failed to send Discord notification. Status code: {response.status_code}, Response: {response.text}")
     except Exception as e:
         logging.error(f"Error sending Discord notification: {e}")
+
+
 
 def send_telegram_notification(file_name):
     """
@@ -70,6 +74,8 @@ def send_telegram_notification(file_name):
     except Exception as e:
         logging.error(f"Error sending Telegram notification: {e}")
 
+
+
 def process_pdf_to_json(pdf_content):
     poller = document_analysis_client.begin_analyze_document("prebuilt-document", pdf_content)
     result = poller.result()
@@ -83,7 +89,10 @@ def process_pdf_to_json(pdf_content):
 
     return json.dumps(extracted_data)
 
+
+
 @app.schedule(schedule="*/1 * * * *", arg_name="timer")
+
 def process_files_timer_trigger(timer: func.TimerRequest) -> None:
     logging.info("Timer trigger function executed. Checking for files in Azure File Share.")
 
