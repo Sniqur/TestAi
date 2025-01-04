@@ -53,7 +53,13 @@ stages:
                 npm install -g azure-functions-core-tools@4 --unsafe-perm true
 
                 echo "Deploying Azure Function App..."
-                func azure functionapp publish $(devFunctionAppName) --python
+                 
+                az functionapp config appsettings set \
+                --name $(devFunctionAppName) \
+                --resource-group FinalTask-PDF-RG \
+                --settings WEBSITE_RUN_FROM_PACKAGE=0
+
+                func azure functionapp publish --python
             displayName: "Deploy Function App to Dev"
   # - stage: DeployToDev
   #   displayName: "Deploy to Development"
