@@ -117,7 +117,7 @@ stages:
                     cd artifact 
                     echo "Installing Azure Functions Core Tools..."
                     npm install -g azure-functions-core-tools@4 --unsafe-perm true
-
+                    ls 
                     pwd 
                      
                     echo "Deploying Azure Function App to Prod..."
