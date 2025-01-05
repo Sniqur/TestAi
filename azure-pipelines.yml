@@ -65,7 +65,7 @@ stages:
 
                 echo "Starting the Dev Function App..."
                 # az functionapp start --name $(devFunctionAppName) --resource-group $(resourceGroup)
-
+                pwd
                 ls
 
                 echo "Installing Azure Functions Core Tools..."
@@ -108,16 +108,18 @@ stages:
                   inlineScript: |
                    
                     echo "Stopping the Dev Function App..."
-                    az functionapp stop --name $(devFunctionAppName) --resource-group $(resourceGroup)
+                    # az functionapp stop --name $(devFunctionAppName) --resource-group $(resourceGroup)
 
                     echo "Starting the Prod Function App..."
-                    az functionapp start --name $(prodFunctionAppName) --resource-group $(resourceGroup)
-                  
+                    # az functionapp start --name $(prodFunctionAppName) --resource-group $(resourceGroup)
+                    pwd
                     ls
-
+                    cd artifact 
                     echo "Installing Azure Functions Core Tools..."
                     npm install -g azure-functions-core-tools@4 --unsafe-perm true
 
+                    pwd 
+                     
                     echo "Deploying Azure Function App to Prod..."
                     func azure functionapp publish $(prodFunctionAppName) --python --source $(packagePath)
 
