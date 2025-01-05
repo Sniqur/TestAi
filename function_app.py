@@ -37,7 +37,7 @@ def send_discord_notification(file_name):
     """
     try:
         message = {
-            "content": f"🎉 A new JSON file has been added to Blob Storage: `{file_name}`"
+            "content": f"🎉 A new test test test JSON file has been added to Blob Storage: `{file_name}`"
         }
         response = requests.post(DISCORD_WEBHOOK_URL, json=message)
 
