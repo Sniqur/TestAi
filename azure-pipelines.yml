@@ -28,14 +28,14 @@ stages:
               scriptLocation: inlineScript
               inlineScript: |
               
-                # echo "Starting the Dev Function App "
+                echo "Starting the Dev Function App "
                
-                # az functionapp start --name $(devFunctionAppName)  --resource-group $(resourceGroup)
+                az functionapp start --name $(devFunctionAppName)  --resource-group $(resourceGroup)
                 
                 echo "Installing Azure Functions Core Tools..."
                 npm install -g azure-functions-core-tools@4 --unsafe-perm true
 
-                # echo "Deploying Azure Function App..."
+                echo "Deploying Azure Function App..."
                 pwd
                 func azure functionapp publish $(devFunctionAppName) --python
             displayName: "Deploy Function App to Dev"
@@ -68,7 +68,13 @@ stages:
                   scriptLocation: inlineScript
                   inlineScript: |
 
+                    echo "Stopping the Dev Function App..."
+                    az functionapp stop --name $(devFunctionAppName) --resource-group $(resourceGroup)
+
+                    echo "Starting the Prod Function App..."
+                    az functionapp start --name $(prodFunctionAppName) --resource-group $(resourceGroup)
                     pwd
+
                     echo "Changing directory to project root..."
                     cd $(packagePath)
                     pwd
@@ -80,8 +86,3 @@ stages:
                 displayName: "Deploy Function App to Prod"
 
 
-                    # echo "Stopping the Dev Function App..."
-                    # az functionapp stop --name $(devFunctionAppName) --resource-group $(resourceGroup)
-
-                    # echo "Starting the Prod Function App..."
-                    # az functionapp start --name $(prodFunctionAppName) --resource-group $(resourceGroup)
