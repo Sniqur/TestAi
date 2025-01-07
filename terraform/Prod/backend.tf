@@ -9,7 +9,7 @@ required_version = "1.9.8"
   backend "azurerm" {
     resource_group_name  = "TF-PDF-test"
     storage_account_name = "tfpfdtest"
-    container_name       = "tfpdftest"
+    container_name       = "tfpdftest-prod"
     key                  = "terraform.tfstate"
   }
 }
