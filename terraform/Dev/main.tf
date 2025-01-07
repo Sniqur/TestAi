@@ -20,6 +20,7 @@ module "storage" {
   location            = module.resource_group.location
   container_name      = "json-storage-dev"
   share_name          = "pdf-storage-dev"
+  to_do_container_name ="to-do"
 }
 
 module "service_plan" {
@@ -53,6 +54,7 @@ module "function_app" {
     "FORM_RECOGNIZER_ENDPOINT"        = module.cognitive_account.endpoint
     "FORM_RECOGNIZER_KEY"             = module.cognitive_account.primary_access_key
     "SHARE_NAME"                      = module.storage.share_name
+    "TODO_CONTAINER"                  = module.storage.to-do-container_name
     "TELEGRAM_BOT_TOKEN"              = var.TELEGRAM_BOT_TOKEN
     "TELEGRAM_CHAT_ID"                = var.TELEGRAM_CHAT_ID
     "DISCORD_WEBHOOK_URL"             = var.DISCORD_WEBHOOK_URL
