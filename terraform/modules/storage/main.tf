@@ -13,6 +13,12 @@ resource "azurerm_storage_container" "storage_container" {
   container_access_type = "blob"
 }
 
+resource "azurerm_storage_container" "to-do" {
+  name                  = var.to_do_container_name
+  storage_account_name  = azurerm_storage_account.storage_account.name
+  container_access_type = "blob"
+}
+
 resource "azurerm_storage_share" "storage_share" {
   name                 = var.share_name
   storage_account_name = azurerm_storage_account.storage_account.name
