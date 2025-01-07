@@ -20,7 +20,7 @@ module "storage" {
   location            = module.resource_group.location
   container_name      = "json-storage-dev"
   share_name          = "pdf-storage-dev"
-  to_do_container_name ="to-do"
+  to_do_container_name = "to-do"
 }
 
 module "service_plan" {
