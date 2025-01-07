@@ -43,8 +43,15 @@ stages:
               scriptLocation: inlineScript
               inlineScript: |
                 az login
-                cd terraform/dev 
+                cd terraform/Dev 
                 ls
+
+                echo "terraform"
+                terraform init -lock=false
+                terraform validate -no-color
+                terraform plan -no-color -input=false -lock=false
+
+
                 echo "TF_VAR_TELEGRAM_BOT_TOKEN: $TF_VAR_TELEGRAM_BOT_TOKEN"
                 echo "TF_VAR_TELEGRAM_CHAT_ID: $TF_VAR_TELEGRAM_CHAT_ID"
                 echo "TF_VAR_DISCORD_WEBHOOK_URL: $TF_VAR_DISCORD_WEBHOOK_URL"
@@ -163,3 +170,10 @@ stages:
 #             LOG_LEVEL=$(prod_LOG_LEVEL) \
 #             FEATURE_FLAG=$(prod_FEATURE_FLAG)
 #       displayName: "Set Secret Environment Variables for Prod Function App"
+
+
+
+
+
+
+
