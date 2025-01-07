@@ -14,6 +14,10 @@ variable "container_name" {
   type = string
 }
 
+variable "to_do_container_name" {
+  type = string
+}
+
 variable "share_name" {
   type = string
 }

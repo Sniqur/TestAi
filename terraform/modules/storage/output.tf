@@ -14,6 +14,10 @@ output "container_name" {
   value = azurerm_storage_container.storage_container.name
 }
 
+output "to-do-container_name" {
+  value = azurerm_storage_container.to-do.name
+}
+
 output "share_name" {
   value = azurerm_storage_share.storage_share.name
 }
