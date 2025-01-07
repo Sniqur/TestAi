@@ -9,29 +9,29 @@ provider "azurerm" {
 
 module "resource_group" {
   source   = "../modules/resource_group"
-  name     = "PDF-Processing-RG-TF1"
+  name     = "PDF-Processing-RG-TF-dev"
   location = "East US2"
 }
 
 module "storage" {
   source              = "../modules/storage"
-  name                = "pdfstorageaccproc1"
+  name                = "pdfstorageaccprocdev"
   resource_group_name = module.resource_group.name
   location            = module.resource_group.location
-  container_name      = "json-storage-dev1"
-  share_name          = "pdf-storage-dev1"
+  container_name      = "json-storage-dev"
+  share_name          = "pdf-storage-dev"
 }
 
 module "service_plan" {
   source              = "../modules/service_plan"
-  name                = "function-plan-pdfproc1"
+  name                = "function-plan-pdfprocdev"
   resource_group_name = module.resource_group.name
   location            = module.resource_group.location
 }
 
 module "cognitive_account" {
   source              = "../modules/cognitive_account"
-  name                = "pdfProcIntelljson1"
+  name                = "pdfProcIntelljsondev"
   resource_group_name = module.resource_group.name
   location            = module.resource_group.location
   
@@ -39,7 +39,7 @@ module "cognitive_account" {
 
 module "function_app" {
   source                   = "../modules/function_app"
-  name                     = "funcapp-pdf-proc-dev1"
+  name                     = "funcapp-pdf-proc-dev"
   location                 = module.resource_group.location
   resource_group_name      = module.resource_group.name
   service_plan_id          = module.service_plan.service_plan_id
