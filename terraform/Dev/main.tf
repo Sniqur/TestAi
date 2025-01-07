@@ -14,12 +14,12 @@ module "resource_group" {
 }
 
 module "storage" {
-  source              = "../modules/storage"
-  name                = "pdfstorageaccprocdev"
-  resource_group_name = module.resource_group.name
-  location            = module.resource_group.location
-  container_name      = "json-storage-dev"
-  share_name          = "pdf-storage-dev"
+  source               = "../modules/storage"
+  name                 = "pdfstorageaccprocdev"
+  resource_group_name  = module.resource_group.name
+  location             = module.resource_group.location
+  container_name       = "json-storage-dev"
+  share_name           = "pdf-storage-dev"
   to_do_container_name = "to-do"
 }
 
@@ -35,16 +35,16 @@ module "cognitive_account" {
   name                = "pdfProcIntelljsondev"
   resource_group_name = module.resource_group.name
   location            = module.resource_group.location
-  
+
 }
 
 module "function_app" {
-  source                   = "../modules/function_app"
-  name                     = "funcapp-pdf-proc-dev"
-  location                 = module.resource_group.location
-  resource_group_name      = module.resource_group.name
-  service_plan_id          = module.service_plan.service_plan_id
-  storage_account_name     = module.storage.storage_account_name
+  source                     = "../modules/function_app"
+  name                       = "funcapp-pdf-proc-dev"
+  location                   = module.resource_group.location
+  resource_group_name        = module.resource_group.name
+  service_plan_id            = module.service_plan.service_plan_id
+  storage_account_name       = module.storage.storage_account_name
   storage_account_access_key = module.storage.primary_access_key
 
   app_settings = {
