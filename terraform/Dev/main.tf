@@ -84,7 +84,10 @@
 
 provider "azurerm" {
   features {}
-  subscription_id = "307f3351-f3f3-42f2-aa13-405cd075f673"
+  subscription_id = var.subscription_id
+  client_id       = var.client_id
+  client_secret   = var.client_secret
+  tenant_id       = var.tenant_id
 }
 
 module "resource_group" {
@@ -133,9 +136,9 @@ module "function_app" {
     "FORM_RECOGNIZER_ENDPOINT"        = module.cognitive_account.endpoint
     "FORM_RECOGNIZER_KEY"             = module.cognitive_account.primary_access_key
     "SHARE_NAME"                      = module.storage.share_name
-    # "TELEGRAM_BOT_TOKEN"              = var.TELEGRAM_BOT_TOKEN
-    # "TELEGRAM_CHAT_ID"                = var.TELEGRAM_CHAT_ID
-    # "DISCORD_WEBHOOK_URL"             = var.DISCORD_WEBHOOK_URL
+    "TELEGRAM_BOT_TOKEN"              = var.TELEGRAM_BOT_TOKEN
+    "TELEGRAM_CHAT_ID"                = var.TELEGRAM_CHAT_ID
+    "DISCORD_WEBHOOK_URL"             = var.DISCORD_WEBHOOK_URL
     "WEBSITE_ENABLE_SYNC_UPDATE_SITE" = "true"
   }
 }

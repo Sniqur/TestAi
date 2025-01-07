@@ -9,8 +9,8 @@ stages:
 - stage: Dev
   displayName: "Deploy to Dev"
   jobs:
-  - job: terraform_ci
-    displayName: "Terraform Init, Validate, and Plan"
+  - job: Terraform_Dev
+    displayName: "Deploying Dev env"
     pool:
       vmImage: 'ubuntu-latest'
     steps:
@@ -25,151 +25,164 @@ stages:
             curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
             az --version
 
-      # - task: Bash@3
-      #   displayName: "Install Terraform"
-      #   inputs:
-      #     targetType: 'inline'
-      #     script: |
-      #       T_VERSION="1.9.8"
-      #       curl -O https://releases.hashicorp.com/terraform/${T_VERSION}/terraform_${T_VERSION}_linux_amd64.zip
-      #       unzip terraform_${T_VERSION}_linux_amd64.zip
-      #       sudo mv terraform /usr/local/bin/
-      #       terraform -version
-
-      - task: AzureCLI@2
+      - task: Bash@3
+        displayName: "Azure Login with Service Principal"
         inputs:
-              azureSubscription: "$(azureServiceConnection)"
-              scriptType: bash
-              scriptLocation: inlineScript
-              inlineScript: |
-                az login
-                cd terraform/Dev 
-                ls
+          targetType: 'inline'
+          script: |
+            az login --service-principal \
+              --username $(ARM_CLIENT_ID) \
+              --password $(ARM_CLIENT_SECRET) \
+              --tenant $(ARM_TENANT_ID)
+            az account set --subscription $(ARM_SUBSCRIPTION_ID)
+            az account show
+        env:
+          ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
+          ARM_CLIENT_ID: $(ARM_CLIENT_ID)
+          ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
+          ARM_TENANT_ID: $(ARM_TENANT_ID)
 
-                echo "terraform"
-                terraform init -lock=false
-                terraform validate -no-color
-                terraform plan -no-color -input=false -lock=false
+
+      - task: TerraformInstaller@0
+        inputs:
+          terraformVersion: '1.9.8'
 
 
-                echo "TF_VAR_TELEGRAM_BOT_TOKEN: $TF_VAR_TELEGRAM_BOT_TOKEN"
-                echo "TF_VAR_TELEGRAM_CHAT_ID: $TF_VAR_TELEGRAM_CHAT_ID"
-                echo "TF_VAR_DISCORD_WEBHOOK_URL: $TF_VAR_DISCORD_WEBHOOK_URL"
+
+      - task: Bash@3
+        displayName: 'Run Terraform Commands'
+        inputs:
+          targetType: 'inline'
+          script: |
+            cd terraform/Dev 
+            pwd
+            ls
+            terraform init -lock=false
+            terraform validate -no-color
+            terraform plan -no-color -input=false
         env:
             TF_VAR_TELEGRAM_BOT_TOKEN: $(TF_VAR_TELEGRAM_BOT_TOKEN)
             TF_VAR_TELEGRAM_CHAT_ID: $(TF_VAR_TELEGRAM_CHAT_ID)
             TF_VAR_DISCORD_WEBHOOK_URL: $(TF_VAR_DISCORD_WEBHOOK_URL)
+            TF_VAR_subscription_id: $(ARM_SUBSCRIPTION_ID)
+            TF_VAR_client_id: $(ARM_CLIENT_ID)
+            TF_VAR_client_secret: $(ARM_CLIENT_SECRET)
+            TF_VAR_tenant_id: $(ARM_TENANT_ID)
+
 
       # - task: Bash@3
-      #   displayName: "Terraform Init/Plan/validate"
+      #   displayName: "Terraform Init/Plan/Validate"
       #   inputs:
       #     targetType: 'inline'
       #     script: |
-      #       cd terraform/dev 
-      #       ls
-      #       echo "TF_VAR_TELEGRAM_BOT_TOKEN: $TF_VAR_TELEGRAM_BOT_TOKEN"
-      #       echo "TF_VAR_TELEGRAM_CHAT_ID: $TF_VAR_TELEGRAM_CHAT_ID"
-      #       echo "TF_VAR_DISCORD_WEBHOOK_URL: $TF_VAR_DISCORD_WEBHOOK_URL"
+      #           cd terraform/Dev 
+      #           ls
+
+      #           echo "terraform"
+      #           terraform init -lock=false
+      #           terraform validate -no-color
+      #           terraform plan -no-color -input=false 
       #   env:
-      #     TF_VAR_TELEGRAM_BOT_TOKEN: $(TF_VAR_TELEGRAM_BOT_TOKEN)
-      #     TF_VAR_TELEGRAM_CHAT_ID: $(TF_VAR_TELEGRAM_CHAT_ID)
-      #     TF_VAR_DISCORD_WEBHOOK_URL: $(TF_VAR_DISCORD_WEBHOOK_URL)
-
-              # terraform init -lock=false
-              # terraform validate -no-color
-              # terraform plan -no-color -input=false -lock=false
+      #       TF_VAR_TELEGRAM_BOT_TOKEN: $(TF_VAR_TELEGRAM_BOT_TOKEN)
+      #       TF_VAR_TELEGRAM_CHAT_ID: $(TF_VAR_TELEGRAM_CHAT_ID)
+      #       TF_VAR_DISCORD_WEBHOOK_URL: $(TF_VAR_DISCORD_WEBHOOK_URL)
 
 
-      # - task: Bash@3
-      #   displayName: "Terraform Validate"
+      # - task: AzureCLI@2
+      #   displayName: "Deploy to Dev"
       #   inputs:
-      #     targetType: 'inline'
-      #     script: |
-      #       terraform validate -no-color
+      #         azureSubscription: "$(azureServiceConnection)"
+      #         scriptType: bash
+      #         scriptLocation: inlineScript
+      #         inlineScript: |
+      #           az login --service-principal -u $(client_id) -p $(client_secret) --tenant $(tenant_id)
+      #           cd terraform/Dev 
+      #           ls
 
-      # - task: Bash@3
-      #   displayName: "Terraform Plan"
-      #   inputs:
-      #     targetType: 'inline'
-      #     script: |
-      #       terraform plan -no-color -input=false -lock=false
+      #           echo "terraform"
+      #           terraform init -lock=false
+      #           terraform validate -no-color
+      #           terraform plan -no-color -input=false -lock=false
+                
+      #           # terraform apply --auto-approve
+
       #   env:
-      #     TF_VAR_sql_admin_user: $(TF_VAR_ai_endpoint)
-      #     TF_VAR_sql_admin_password: $(TF_VAR_ai_key)
+      #       TF_VAR_TELEGRAM_BOT_TOKEN: $(TF_VAR_TELEGRAM_BOT_TOKEN)
+      #       TF_VAR_TELEGRAM_CHAT_ID: $(TF_VAR_TELEGRAM_CHAT_ID)
+      #       TF_VAR_DISCORD_WEBHOOK_URL: $(TF_VAR_DISCORD_WEBHOOK_URL)
+
+
+# Stage 2: Deploy to Prod
+- stage: Prod
+  displayName: "Deploy to Production Environment"
+  dependsOn: Dev  # Ensure Dev stage is completed first
+  condition: succeeded() # Triggered only if CI succeeds
+  jobs:
+    - deployment: Terrafrom_Prod
+      displayName: "Deploying Prod env"
+      pool:
+        vmImage: 'ubuntu-latest'
+      environment:
+            name: 'Prod'  # Replace with your environment name
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+                  - checkout: self
+
+                  - task: Bash@3
+                    displayName: "Install Azure CLI"
+                    inputs:
+                      targetType: 'inline'
+                      script: |
+                        curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+                        az --version
+
+                  - task: Bash@3
+                    displayName: "Azure Login with Service Principal"
+                    inputs:
+                      targetType: 'inline'
+                      script: |
+                        az login --service-principal \
+                          --username $(ARM_CLIENT_ID) \
+                          --password $(ARM_CLIENT_SECRET) \
+                          --tenant $(ARM_TENANT_ID)
+                        az account set --subscription $(ARM_SUBSCRIPTION_ID)
+                        az account show
+                    env:
+                      ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
+                      ARM_CLIENT_ID: $(ARM_CLIENT_ID)
+                      ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
+                      ARM_TENANT_ID: $(ARM_TENANT_ID)
+
+
+                  - task: TerraformInstaller@0
+                    inputs:
+                      terraformVersion: '1.9.8'
 
 
 
+                  - task: Bash@3
+                    displayName: 'Run Terraform Commands'
+                    inputs:
+                      targetType: 'inline'
+                      script: |
+                        cd terraform/Prod
+                        pwd 
+                        ls
+                        terraform init -lock=false
+                        terraform validate -no-color
+                        terraform plan -no-color -input=false
+                    env:
+                        TF_VAR_TELEGRAM_BOT_TOKEN: $(TF_VAR_TELEGRAM_BOT_TOKEN)
+                        TF_VAR_TELEGRAM_CHAT_ID: $(TF_VAR_TELEGRAM_CHAT_ID)
+                        TF_VAR_DISCORD_WEBHOOK_URL: $(TF_VAR_DISCORD_WEBHOOK_URL)
+                        TF_VAR_subscription_id: $(ARM_SUBSCRIPTION_ID)
+                        TF_VAR_client_id: $(ARM_CLIENT_ID)
+                        TF_VAR_client_secret: $(ARM_CLIENT_SECRET)
+                        TF_VAR_tenant_id: $(ARM_TENANT_ID) 
 
 
-# # Stage 2: Deploy to Prod
-# - stage: Prod
-#   displayName: "Deploy to Production Environment"
-#   dependsOn: Dev  # Ensure Dev stage is completed first
-#   condition: succeeded()  # Run only if Dev stage succeeds
-#   approval:
-#     - name: "Manual Approval for Prod"
-#       instructions: "Approve this stage to deploy to Production."
-#       reviewers:
-#         - your.team@organization.com  # Replace with actual email addresses or Azure DevOps group
-
-#   jobs:
-#   - job: DeployProd
-#     displayName: "Deploy Infrastructure to Prod"
-#     steps:
-#     - task: UsePythonVersion@0
-#       displayName: "Set Python Version"
-#       inputs:
-#         versionSpec: "3.x"
-
-#     - task: Checkout@1
-#       displayName: "Checkout Repository"
-#       inputs:
-#         fetchDepth: 1
-
-#     - task: TerraformInstaller@0
-#       displayName: "Install Terraform"
-#       inputs:
-#         terraformVersion: $(terraformVersion)
-
-#     - script: |
-#         cd $(prodFolder)
-#         terraform init -backend-config=$(prodBackendConfig)
-#       displayName: "Initialize Terraform for Prod"
-
-#     - script: |
-#         cd $(prodFolder)
-#         terraform validate
-#       displayName: "Validate Terraform for Prod"
-
-#     - script: |
-#         cd $(prodFolder)
-#         terraform plan -out=tfplan
-#       displayName: "Generate Terraform Plan for Prod"
-#       env:
-#         ARM_CLIENT_ID: $(servicePrincipalId)
-#         ARM_CLIENT_SECRET: $(servicePrincipalKey)
-#         ARM_SUBSCRIPTION_ID: $(subscriptionId)
-#         ARM_TENANT_ID: $(tenantId)
-
-#     - script: |
-#         cd $(prodFolder)
-#         terraform apply -auto-approve tfplan
-#       displayName: "Apply Terraform Plan for Prod"
-#       env:
-#         ARM_CLIENT_ID: $(servicePrincipalId)
-#         ARM_CLIENT_SECRET: $(servicePrincipalKey)
-#         ARM_SUBSCRIPTION_ID: $(subscriptionId)
-#         ARM_TENANT_ID: $(tenantId)
-
-#     - script: |
-#         az functionapp config appsettings set \
-#           --name $(prodFunctionAppName) \
-#           --resource-group $(resourceGroupName) \
-#           --settings \
-#             APP_ENV=$(prod_APP_ENV) \
-#             LOG_LEVEL=$(prod_LOG_LEVEL) \
-#             FEATURE_FLAG=$(prod_FEATURE_FLAG)
-#       displayName: "Set Secret Environment Variables for Prod Function App"
 
 
 
