@@ -8,7 +8,7 @@ provider "azurerm" {
 
 module "resource_group" {
   source   = "../modules/resource_group"
-  name     = "PDF-Processing-RG-TF-prod"
+  name     = "PDF-Processing-RG-TF-production"
   location = "East US2"
 }
 
