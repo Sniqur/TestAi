@@ -25,16 +25,16 @@ stages:
             curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
             az --version
 
-      - task: Bash@3
-        displayName: "Install Terraform"
-        inputs:
-          targetType: 'inline'
-          script: |
-            T_VERSION="1.9.8"
-            curl -O https://releases.hashicorp.com/terraform/${T_VERSION}/terraform_${T_VERSION}_linux_amd64.zip
-            unzip terraform_${T_VERSION}_linux_amd64.zip
-            sudo mv terraform /usr/local/bin/
-            terraform -version
+      # - task: Bash@3
+      #   displayName: "Install Terraform"
+      #   inputs:
+      #     targetType: 'inline'
+      #     script: |
+      #       T_VERSION="1.9.8"
+      #       curl -O https://releases.hashicorp.com/terraform/${T_VERSION}/terraform_${T_VERSION}_linux_amd64.zip
+      #       unzip terraform_${T_VERSION}_linux_amd64.zip
+      #       sudo mv terraform /usr/local/bin/
+      #       terraform -version
 
       - task: AzureCLI@2
         inputs:
@@ -43,21 +43,30 @@ stages:
               scriptLocation: inlineScript
               inlineScript: |
                 az login
-
-      - task: Bash@3
-        displayName: "Terraform Init/Plan/validate"
-        inputs:
-          targetType: 'inline'
-          script: |
-            cd terraform/dev 
-            ls
-            echo "TF_VAR_TELEGRAM_BOT_TOKEN: $TF_VAR_TELEGRAM_BOT_TOKEN"
-            echo "TF_VAR_TELEGRAM_CHAT_ID: $TF_VAR_TELEGRAM_CHAT_ID"
-            echo "TF_VAR_DISCORD_WEBHOOK_URL: $TF_VAR_DISCORD_WEBHOOK_URL"
+                cd terraform/dev 
+                ls
+                echo "TF_VAR_TELEGRAM_BOT_TOKEN: $TF_VAR_TELEGRAM_BOT_TOKEN"
+                echo "TF_VAR_TELEGRAM_CHAT_ID: $TF_VAR_TELEGRAM_CHAT_ID"
+                echo "TF_VAR_DISCORD_WEBHOOK_URL: $TF_VAR_DISCORD_WEBHOOK_URL"
         env:
-          TF_VAR_TELEGRAM_BOT_TOKEN: $(TF_VAR_TELEGRAM_BOT_TOKEN)
-          TF_VAR_TELEGRAM_CHAT_ID: $(TF_VAR_TELEGRAM_CHAT_ID)
-          TF_VAR_DISCORD_WEBHOOK_URL: $(TF_VAR_DISCORD_WEBHOOK_URL)
+            TF_VAR_TELEGRAM_BOT_TOKEN: $(TF_VAR_TELEGRAM_BOT_TOKEN)
+            TF_VAR_TELEGRAM_CHAT_ID: $(TF_VAR_TELEGRAM_CHAT_ID)
+            TF_VAR_DISCORD_WEBHOOK_URL: $(TF_VAR_DISCORD_WEBHOOK_URL)
+
+      # - task: Bash@3
+      #   displayName: "Terraform Init/Plan/validate"
+      #   inputs:
+      #     targetType: 'inline'
+      #     script: |
+      #       cd terraform/dev 
+      #       ls
+      #       echo "TF_VAR_TELEGRAM_BOT_TOKEN: $TF_VAR_TELEGRAM_BOT_TOKEN"
+      #       echo "TF_VAR_TELEGRAM_CHAT_ID: $TF_VAR_TELEGRAM_CHAT_ID"
+      #       echo "TF_VAR_DISCORD_WEBHOOK_URL: $TF_VAR_DISCORD_WEBHOOK_URL"
+      #   env:
+      #     TF_VAR_TELEGRAM_BOT_TOKEN: $(TF_VAR_TELEGRAM_BOT_TOKEN)
+      #     TF_VAR_TELEGRAM_CHAT_ID: $(TF_VAR_TELEGRAM_CHAT_ID)
+      #     TF_VAR_DISCORD_WEBHOOK_URL: $(TF_VAR_DISCORD_WEBHOOK_URL)
 
               # terraform init -lock=false
               # terraform validate -no-color
