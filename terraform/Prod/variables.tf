@@ -10,19 +10,19 @@ variable "DISCORD_WEBHOOK_URL" {
   type = string
 
 }
-variable "subscription_id" {
+variable "SUBSCRIPTION_ID" {
   type = string
 
 }
-variable "client_id" {
+variable "CLIENT_ID" {
   type = string
 
 }
-variable "client_secret" {
+variable "CLIENT_SECRET" {
   type = string
 
 }
-variable "tenant_id" {
+variable "TENANT_ID" {
   type = string
 
 }
