@@ -7,7 +7,7 @@ trigger:
 variables:
 - group: TerraformVars  
 
-
+ 
 stages:
 
   - stage: Build
