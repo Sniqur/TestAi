@@ -131,32 +131,78 @@ stages:
                   targetPath: "$(artifactPath)"
                 displayName: "Download Artifact"
 
-              - task: AzureCLI@2
+              - task: Bash@3
+                displayName: "Install Azure CLI"
                 inputs:
-                  azureSubscription: "$(azureServiceConnection)"
-                  scriptType: bash
-                  scriptLocation: inlineScript
-                  inlineScript: |
+                  targetType: 'inline'
+                  script: |
+                    curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+                    az --version
+
+              - task: Bash@3
+                displayName: "Azure Login with Service Principal"
+                inputs:
+                  targetType: 'inline'
+                  script: |
+                    az login --service-principal \
+                      --username $(ARM_CLIENT_ID) \
+                      --password $(ARM_CLIENT_SECRET) \
+                      --tenant $(ARM_TENANT_ID)
+                    az account set --subscription $(ARM_SUBSCRIPTION_ID)
+                    az account show
+                env:
+                  ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
+                  ARM_CLIENT_ID: $(ARM_CLIENT_ID)
+                  ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
+                  ARM_TENANT_ID: $(ARM_TENANT_ID)
+
+              # - task: AzureCLI@2
+              #   inputs:
+              #     azureSubscription: "$(azureServiceConnection)"
+              #     scriptType: bash
+              #     scriptLocation: inlineScript
+              #     inlineScript: |
                 
+              #       echo "Starting the Prod Function App..."
+              #       az functionapp start --name $(devFunctionAppName) --resource-group $(resourceGroup)
+                    
+              #       ls
+                    
+              #       echo "cd to app "
+              #       cd app/artifact/app
+ 
+
+              #       echo "Installing Azure Functions Core Tools..."
+              #       npm install -g azure-functions-core-tools@4 --unsafe-perm true
+                    
+                     
+              #       echo "Deploying Azure Function App to Prod..."
+              #       func azure functionapp publish $(prodFunctionAppName) --python 
+
+              #   displayName: "Deploy Function App to Dev"
+
+              - task: Bash@3
+                displayName: "Deploy Function App to Dev"
+                inputs:
+                  targetType: 'inline'
+                  script: |
                     echo "Starting the Prod Function App..."
                     az functionapp start --name $(devFunctionAppName) --resource-group $(resourceGroup)
-                    
+                    pwd
                     ls
                     
                     echo "cd to app "
                     cd app/artifact/app
- 
 
+                    ls
+                    pwd
+      
                     echo "Installing Azure Functions Core Tools..."
                     npm install -g azure-functions-core-tools@4 --unsafe-perm true
                     
                      
                     echo "Deploying Azure Function App to Prod..."
-                    func azure functionapp publish $(prodFunctionAppName) --python 
-
-                displayName: "Deploy Function App to Dev"
-
-
+                    func azure functionapp publish $(devFunctionAppName) --python 
 
 
 
