@@ -44,7 +44,6 @@ stages:
 # Stage 1: Deploy TF Infrastructure for Dev
   - stage: Dev_Infra
     displayName: "Deploy TF Infra for Dev"
-    condition: eq(variables['Build.SourceBranch'], 'refs/heads/dev')
     jobs:
     - job: Terraform_Dev
       displayName: "Deploying Dev env"
