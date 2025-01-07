@@ -79,7 +79,6 @@ stages:
   displayName: "Deploy to Production Environment"
   condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
   dependsOn: Dev  
-  condition: succeeded() #
   jobs:
     - deployment: Terrafrom_Prod
       displayName: "Deploying Prod env"
