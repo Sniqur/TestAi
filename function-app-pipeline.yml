@@ -1,13 +1,18 @@
-trigger:
-  branches:
-    include:
-      - main
-      # - dev
+trigger: none  # Автоматичний тригер від змін у репозиторії вимкнено.
+
+resources:
+  pipelines:
+  - pipeline: pipeline1  # Ідентифікатор для першого пайплайну.
+    source: Sniqur.Dev   # Назва першого пайплайну.
+    trigger: 
+      branches:
+        include:
+        - dev
 
 variables:
 - group: TerraformVars  
 
-
+ 
 stages:
 
   - stage: Build
