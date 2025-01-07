@@ -51,8 +51,13 @@ stages:
           script: |
             cd terraform/dev 
             ls
-
-
+            echo "TF_VAR_TELEGRAM_BOT_TOKEN: $TF_VAR_TELEGRAM_BOT_TOKEN"
+            echo "TF_VAR_TELEGRAM_CHAT_ID: $TF_VAR_TELEGRAM_CHAT_ID"
+            echo "TF_VAR_DISCORD_WEBHOOK_URL: $TF_VAR_DISCORD_WEBHOOK_URL"
+        env:
+          TF_VAR_TELEGRAM_BOT_TOKEN: $(TF_VAR_TELEGRAM_BOT_TOKEN)
+          TF_VAR_TELEGRAM_CHAT_ID: $(TF_VAR_TELEGRAM_CHAT_ID)
+          TF_VAR_DISCORD_WEBHOOK_URL: $(TF_VAR_DISCORD_WEBHOOK_URL)
 
               # terraform init -lock=false
               # terraform validate -no-color
