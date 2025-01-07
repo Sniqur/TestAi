@@ -133,17 +133,12 @@ def main(myblob: func.InputStream):
         file_name = myblob.name
         logging.info(f"Processing file: {file_name}")
 
-        # Access PDF
-        blob_client = BlobClient.from_connection_string(
-            STORAGE_CONNECTION_STRING, container_name=TODO_CONTAINER, blob_name=basename(file_name)
-        )
 
-        # Upload JSON to Blob Storage
         json_file = f"{os.path.splitext(file_name)[0]}.json"
         json_file_name = basename(json_file)
 
         send_discord_notification(json_file_name)
-
+        send_telegram_notification(json_file_name)
         logging.info(f"Successfully sent notification  {file_name}")
     except Exception as e:
         logging.error(f"Error processing file {file_name}", exc_info=True)

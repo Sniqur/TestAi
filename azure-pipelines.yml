@@ -2,7 +2,7 @@ trigger:
   branches:
     include:
       # - main
-      - dev
+      # - dev
 
 variables:
   azureServiceConnection: "Azure subscription 1 (307f3351-f3f3-42f2-aa13-405cd075f673)"

@@ -1,5 +1,8 @@
 trigger:
-- main  
+  branches:
+    include:
+      - main
+      - dev
 
 variables:
 - group: TerraformVars  
@@ -8,6 +11,7 @@ stages:
 # Stage 1: Deploy to Dev
 - stage: Dev
   displayName: "Deploy to Dev"
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/dev')
   jobs:
   - job: Terraform_Dev
     displayName: "Deploying Dev env"
@@ -73,6 +77,7 @@ stages:
 # Stage 2: Deploy to Prod
 - stage: Prod
   displayName: "Deploy to Production Environment"
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
   dependsOn: Dev  
   condition: succeeded() #
   jobs:
