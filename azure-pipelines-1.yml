@@ -1,8 +1,8 @@
 trigger:
-- main  # Trigger pipeline on changes to the 'main' branch
+- main  
 
 variables:
-- group: TerraformVars  # Reference the variable group
+- group: TerraformVars  
 
 stages:
 # Stage 1: Deploy to Dev
@@ -60,6 +60,7 @@ stages:
             terraform init -lock=false
             terraform validate -no-color
             terraform plan -no-color -input=false
+            terraform apply --auto-approve
         env:
             TF_VAR_TELEGRAM_BOT_TOKEN: $(TF_VAR_TELEGRAM_BOT_TOKEN)
             TF_VAR_TELEGRAM_CHAT_ID: $(TF_VAR_TELEGRAM_CHAT_ID)
@@ -69,61 +70,18 @@ stages:
             TF_VAR_client_secret: $(ARM_CLIENT_SECRET)
             TF_VAR_tenant_id: $(ARM_TENANT_ID)
 
-
-      # - task: Bash@3
-      #   displayName: "Terraform Init/Plan/Validate"
-      #   inputs:
-      #     targetType: 'inline'
-      #     script: |
-      #           cd terraform/Dev 
-      #           ls
-
-      #           echo "terraform"
-      #           terraform init -lock=false
-      #           terraform validate -no-color
-      #           terraform plan -no-color -input=false 
-      #   env:
-      #       TF_VAR_TELEGRAM_BOT_TOKEN: $(TF_VAR_TELEGRAM_BOT_TOKEN)
-      #       TF_VAR_TELEGRAM_CHAT_ID: $(TF_VAR_TELEGRAM_CHAT_ID)
-      #       TF_VAR_DISCORD_WEBHOOK_URL: $(TF_VAR_DISCORD_WEBHOOK_URL)
-
-
-      # - task: AzureCLI@2
-      #   displayName: "Deploy to Dev"
-      #   inputs:
-      #         azureSubscription: "$(azureServiceConnection)"
-      #         scriptType: bash
-      #         scriptLocation: inlineScript
-      #         inlineScript: |
-      #           az login --service-principal -u $(client_id) -p $(client_secret) --tenant $(tenant_id)
-      #           cd terraform/Dev 
-      #           ls
-
-      #           echo "terraform"
-      #           terraform init -lock=false
-      #           terraform validate -no-color
-      #           terraform plan -no-color -input=false -lock=false
-                
-      #           # terraform apply --auto-approve
-
-      #   env:
-      #       TF_VAR_TELEGRAM_BOT_TOKEN: $(TF_VAR_TELEGRAM_BOT_TOKEN)
-      #       TF_VAR_TELEGRAM_CHAT_ID: $(TF_VAR_TELEGRAM_CHAT_ID)
-      #       TF_VAR_DISCORD_WEBHOOK_URL: $(TF_VAR_DISCORD_WEBHOOK_URL)
-
-
 # Stage 2: Deploy to Prod
 - stage: Prod
   displayName: "Deploy to Production Environment"
-  dependsOn: Dev  # Ensure Dev stage is completed first
-  condition: succeeded() # Triggered only if CI succeeds
+  dependsOn: Dev  
+  condition: succeeded() #
   jobs:
     - deployment: Terrafrom_Prod
       displayName: "Deploying Prod env"
       pool:
         vmImage: 'ubuntu-latest'
       environment:
-            name: 'Prod'  # Replace with your environment name
+            name: 'Prod'  
       strategy:
         runOnce:
           deploy:
@@ -173,6 +131,8 @@ stages:
                         terraform init -lock=false
                         terraform validate -no-color
                         terraform plan -no-color -input=false
+                        terraform apply --auto-approve
+
                     env:
                         TF_VAR_TELEGRAM_BOT_TOKEN: $(TF_VAR_TELEGRAM_BOT_TOKEN)
                         TF_VAR_TELEGRAM_CHAT_ID: $(TF_VAR_TELEGRAM_CHAT_ID)

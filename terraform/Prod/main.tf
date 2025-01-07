@@ -1,33 +1,36 @@
 provider "azurerm" {
   features {}
-  subscription_id = "307f3351-f3f3-42f2-aa13-405cd075f673"
+  subscription_id = var.subscription_id
+  client_id       = var.client_id
+  client_secret   = var.client_secret
+  tenant_id       = var.tenant_id
 }
 
 module "resource_group" {
   source   = "../modules/resource_group"
-  name     = "PDF-Processing-RG-TF"
+  name     = "PDF-Processing-RG-TF1"
   location = "East US2"
 }
 
 module "storage" {
   source              = "../modules/storage"
-  name                = "pdfstorageaccproc"
+  name                = "pdfstorageaccproc1"
   resource_group_name = module.resource_group.name
   location            = module.resource_group.location
-  container_name      = "json-storage-prod"
-  share_name          = "pdf-storage-prod"
+  container_name      = "json-storage-prod1"
+  share_name          = "pdf-storage-prod1"
 }
 
 module "service_plan" {
   source              = "../modules/service_plan"
-  name                = "function-plan-pdfproc"
+  name                = "function-plan-pdfproc1"
   resource_group_name = module.resource_group.name
   location            = module.resource_group.location
 }
 
 module "cognitive_account" {
   source              = "../modules/cognitive_account"
-  name                = "pdfProcIntelljson"
+  name                = "pdfProcIntelljson1"
   resource_group_name = module.resource_group.name
   location            = module.resource_group.location
   
@@ -35,7 +38,7 @@ module "cognitive_account" {
 
 module "function_app" {
   source                   = "../modules/function_app"
-  name                     = "funcapp-pdf-proc-prod"
+  name                     = "funcapp-pdf-proc-prod1"
   location                 = module.resource_group.location
   resource_group_name      = module.resource_group.name
   service_plan_id          = module.service_plan.service_plan_id
@@ -49,9 +52,9 @@ module "function_app" {
     "FORM_RECOGNIZER_ENDPOINT"        = module.cognitive_account.endpoint
     "FORM_RECOGNIZER_KEY"             = module.cognitive_account.primary_access_key
     "SHARE_NAME"                      = module.storage.share_name
-    # "TELEGRAM_BOT_TOKEN"              = var.TELEGRAM_BOT_TOKEN
-    # "TELEGRAM_CHAT_ID"                = var.TELEGRAM_CHAT_ID
-    # "DISCORD_WEBHOOK_URL"             = var.DISCORD_WEBHOOK_URL
+    "TELEGRAM_BOT_TOKEN"              = var.TELEGRAM_BOT_TOKEN
+    "TELEGRAM_CHAT_ID"                = var.TELEGRAM_CHAT_ID
+    "DISCORD_WEBHOOK_URL"             = var.DISCORD_WEBHOOK_URL
     "WEBSITE_ENABLE_SYNC_UPDATE_SITE" = "true"
   }
 }
